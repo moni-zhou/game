@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 韩娱嫂子模拟器 · EXO定向版 💕</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #FFB6C1;
+            --light-pink: #FFF0F5;
+            --hot-pink: #FF69B4;
+            --deep-pink: #FF1493;
+            --soft-pink: #F8E8EE;
+            --cream: #FFF9F9;
+            --lavender: #E6E6FA;
+            --peach: #FFDAB9;
+            --mint: #F0FFF0;
+            --sky-blue: #E0F6FF;
+            --text-dark: #4A4A4A;
+            --text-light: #888;
+            --shadow: rgba(255, 182, 193, 0.3);
+            --shadow-strong: rgba(255, 105, 180, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--light-pink) 0%, var(--soft-pink) 50%, var(--lavender) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.15;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* 主容器 */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--shadow-strong);
+        }
+
+        /* 标题样式 */
+        .game-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--hot-pink), var(--deep-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px var(--shadow);
+        }
+
+        .game-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--hot-pink);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--hot-pink), var(--deep-pink));
+            color: white;
+            box-shadow: 0 4px 15px var(--shadow-strong);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-strong);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--hot-pink);
+            border: 2px solid var(--primary-pink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-pink);
+            transform: translateY(-2px);
+        }
+
+        .btn-option {
+            background: linear-gradient(135deg, #FFF5F7, #FFF0F5);
+            color: var(--text-dark);
+            border: 2px solid var(--primary-pink);
+            width: 100%;
+            margin: 10px 0;
+            text-align: left;
+            justify-content: flex-start;
+            padding: 16px 24px;
+        }
+
+        .btn-option:hover {
+            background: linear-gradient(135deg, var(--light-pink), var(--soft-pink));
+            border-color: var(--hot-pink);
+            transform: translateX(5px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* 输入框样式 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #FFE4E9;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--hot-pink);
+            box-shadow: 0 0 0 4px var(--shadow);
+        }
+
+        .input-field::placeholder {
+            color: #CCC;
+        }
+
+        /* 选择卡片 */
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .selection-card {
+            background: white;
+            border: 2px solid #FFE4E9;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .selection-card:hover {
+            border-color: var(--hot-pink);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow);
+        }
+
+        .selection-card.selected {
+            border-color: var(--deep-pink);
+            background: linear-gradient(135deg, #FFF5F7, #FFF0F5);
+            box-shadow: 0 4px 15px var(--shadow-strong);
+        }
+
+        .selection-card .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .selection-card .title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .selection-card .desc {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* 角色卡片 */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .character-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid #FFE4E9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .character-card:hover {
+            border-color: var(--hot-pink);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .character-card.selected {
+            border-color: var(--deep-pink);
+            background: linear-gradient(135deg, #FFF5F7, #FFF0F5);
+        }
+
+        .character-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .character-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-pink), var(--hot-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .character-info h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .character-info .type {
+            font-size: 0.85rem;
+            color: var(--hot-pink);
+            font-weight: 500;
+        }
+
+        .character-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .trait-tag {
+            background: var(--light-pink);
+            color: var(--hot-pink);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        /* 剧情文本 */
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: var(--text-dark);
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--cream), white);
+            border-radius: 16px;
+            border-left: 4px solid var(--hot-pink);
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-item .label {
+            color: var(--text-light);
+        }
+
+        .status-item .value {
+            font-weight: 600;
+            color: var(--hot-pink);
+        }
+
+        /* 舆论面板 */
+        .opinion-panel {
+            background: linear-gradient(135deg, #FFF5F7, var(--lavender));
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .opinion-meter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .opinion-bar {
+            flex: 1;
+            height: 12px;
+            background: #EEE;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .opinion-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .opinion-fill.positive {
+            background: linear-gradient(90deg, #90EE90, #32CD32);
+        }
+
+        .opinion-fill.negative {
+            background: linear-gradient(90deg, #FFB6C1, var(--hot-pink));
+        }
+
+        .opinion-fill.neutral {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        /* 存档列表 */
+        .save-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .save-item {
+            background: white;
+            border: 2px solid #FFE4E9;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-item:hover {
+            border-color: var(--hot-pink);
+            transform: translateX(5px);
+        }
+
+        .save-info h4 {
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .save-info .meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .save-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 40px;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--hot-pink);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .toast.success {
+            border: 2px solid #90EE90;
+        }
+
+        .toast.error {
+            border: 2px solid #FFB6C1;
+        }
+
+        /* API配置状态 */
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .api-status.connected {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .api-status.disconnected {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 20px;
+                margin: 10px 0;
+            }
+            
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-pink);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-pink);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--hot-pink);
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration" id="bgDecoration"></div>
+
+    <div class="game-container">
+        <!-- ==================== 游戏首页 ==================== -->
+        <div id="homeScreen" class="screen">
+            <div class="card fade-in" style="text-align: center; padding: 50px 30px;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">💕✨🎭</div>
+                <h1 class="game-title">韩娱嫂子模拟器</h1>
+                <p class="game-subtitle">EXO定向版 · 平行世界恋爱物语</p>
+                
+                <div style="background: linear-gradient(135deg, var(--cream), white); border-radius: 16px; padding: 25px; margin: 30px 0; text-align: left;">
+                    <p style="margin-bottom: 15px; line-height: 1.8;">🎮 <strong>游戏简介：</strong></p>
+                    <p style="line-height: 2; color: var(--text-light);">
+                        在这个写实向韩娱恋爱模拟游戏中，你将扮演一位普通人，闯入光鲜亮丽的韩娱世界。
+                        与EXO成员展开一段七分甜三分虐的恋爱物语。你的每一个选择都会影响感情线、
+                        事业线与舆论走向，最终导向不同的结局。
+                    </p>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="showScreen('apiConfigScreen')">
+                        <span>⚙️</span> API配置
+                    </button>
+                    <button class="btn btn-secondary" onclick="showScreen('loadGameScreen')">
+                        <span>💾</span> 读取存档
+                    </button>
+                </div>
+
+                <div id="apiStatusHome" style="margin-top: 20px;">
+                    <span class="api-status disconnected">
+                        <span>⚠️</span> API未配置
+                    </span>
+                </div>
+
+                <button id="startGameBtn" class="btn btn-primary" style="margin-top: 30px; font-size: 1.2rem; padding: 18px 40px;" onclick="startNewGame()" disabled>
+                    <span>🎬</span> 开始游戏
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== API配置界面 ==================== -->
+        <div id="apiConfigScreen" class="screen hidden">
+            <div class="card fade-in">
+                <div class="section-title">
+                    <span>⚙️</span> API配置
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">API端点 (Endpoint)</label>
+                    <input type="text" class="input-field" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">API密钥 (API Key)</label>
+                    <input type="password" class="input-field" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">模型名称 (Model)</label>
+                    <input type="text" class="input-field" id="apiModel" placeholder="gpt-3.5-turbo" value="gpt-3.5-turbo">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">自定义模型名称（可选）</label>
+                    <input type="text" class="input-field" id="customModelName" placeholder="为模型起个昵称，如：我的小助手">
+                </div>
+
+                <div style="background: var(--light-pink); border-radius: 12px; padding: 15px; margin: 20px 0;">
+                    <p style="font-size: 0.9rem; color: var(--text-light); line-height: 1.6;">
+                        💡 <strong>提示：</strong>支持OpenAI格式API，包括官方API、Azure OpenAI、
+                        第三方代理等。配置完成后请先测试连通性。
+                    </p>
+                </div>
+
+                <div id="apiTestResult" style="margin: 20px 0;"></div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="testAPIConnection()">
+                        <span>🔌</span> 测试连通性
+                    </button>
+                    <button class="btn btn-primary" onclick="saveAPIConfig()">
+                        <span>💾</span> 保存配置
+                    </button>
+                    <button class="btn btn-secondary" onclick="showScreen('homeScreen')">
+                        <span>↩️</span> 返回首页
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 角色创建界面 ==================== -->
+        <div id="characterCreateScreen" class="screen hidden">
+            <div class="card fade-in">
+                <div class="section-title">
+                    <span>✨</span> 创建角色
+                </div>
+
+                <!-- 玩家基本信息 -->
+                <div class="input-group">
+                    <label class="input-label">你的名字</label>
+                    <input type="text" class="input-field" id="playerName" placeholder="请输入你的名字">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">年龄</label>
+                    <input type="number" class="input-field" id="playerAge" placeholder="20" min="18" max="40">
+                </div>
+
+                <!-- 身份选择 -->
+                <div class="section-title" style="margin-top: 30px;">
+                    <span>🎭</span> 选择你的身份
+                </div>
+                
+                <div class="selection-grid" id="identitySelection">
+                    <div class="selection-card" data-identity="student" onclick="selectIdentity(this)">
+                        <div class="emoji">🎓</div>
+                        <div class="title">留学生</div>
+                        <div class="desc">在首尔读书，与娱乐圈无关</div>
+                    </div>
+                    <div class="selection-card" data-identity="fan" onclick="selectIdentity(this)">
+                        <div class="emoji">💫</div>
+                        <div class="title">EXO-L / 海外粉丝</div>
+                        <div class="desc">曾默默关注EXO很久</div>
+                    </div>
+                    <div class="selection-card" data-identity="intern" onclick="selectIdentity(this)">
+                        <div class="emoji">💼</div>
+                        <div class="title">娱乐公司实习生</div>
+                        <div class="desc">在经纪公司实习</div>
+                    </div>
+                    <div class="selection-card" data-identity="staff" onclick="selectIdentity(this)">
+                        <div class="emoji">🎬</div>
+                        <div class="title">音乐节目工作人员</div>
+                        <div class="desc">在打歌节目工作</div>
+                    </div>
+                    <div class="selection-card" data-identity="stylist" onclick="selectIdentity(this)">
+                        <div class="emoji">✂️</div>
+                        <div class="title">妆造师/发型助理</div>
+                        <div class="desc">参与舞台妆造</div>
+                    </div>
+                    <div class="selection-card" data-identity="translator" onclick="selectIdentity(this)">
+                        <div class="emoji">🌐</div>
+                        <div class="title">翻译/海外商务助理</div>
+                        <div class="desc">负责采访翻译</div>
+                    </div>
+                    <div class="selection-card" data-identity="parttime" onclick="selectIdentity(this)">
+                        <div class="emoji">☕</div>
+                        <div class="title">咖啡店/便利店兼职</div>
+                        <div class="desc">普通人，为生计奔波</div>
+                    </div>
+                    <div class="selection-card" data-identity="custom" onclick="selectIdentity(this)">
+                        <div class="emoji">✨</div>
+                        <div class="title">自定义身份</div>
+                        <div class="desc">由你自行设定</div>
+                    </div>
+                </div>
+
+                <!-- 选择男主 -->
+                <div class="section-title" style="margin-top: 30px;">
+                    <span>💕</span> 选择攻略对象
+                </div>
+
+                <div class="character-grid" id="characterSelection">
+                    <div class="character-card" data-character="xiumin" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐱</div>
+                            <div class="character-info">
+                                <h3>金珉锡 (Xiumin)</h3>
+                                <div class="type">慢热年上型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">克制温柔</span>
+                            <span class="trait-tag">生活感强</span>
+                            <span class="trait-tag">慢热稳定</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="suho" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐰</div>
+                            <div class="character-info">
+                                <h3>金俊勉 (Suho)</h3>
+                                <div class="type">队长责任型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">温柔理性</span>
+                            <span class="trait-tag">责任感强</span>
+                            <span class="trait-tag">内耗型</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="lay" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🦄</div>
+                            <div class="character-info">
+                                <h3>张艺兴 (Lay)</h3>
+                                <div class="type">异国距离型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">温柔疏离</span>
+                            <span class="trait-tag">工作狂</span>
+                            <span class="trait-tag">异地感</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="baekhyun" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐶</div>
+                            <div class="character-info">
+                                <h3>边伯贤 (Baekhyun)</h3>
+                                <div class="type">高甜反差型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">会撩</span>
+                            <span class="trait-tag">表面轻松</span>
+                            <span class="trait-tag">私下敏感</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="chen" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🦕</div>
+                            <div class="character-info">
+                                <h3>金钟大 (Chen)</h3>
+                                <div class="type">声音治愈型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">成熟温和</span>
+                            <span class="trait-tag">情绪稳定</span>
+                            <span class="trait-tag">现实感强</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="chanyeol" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐟</div>
+                            <div class="character-info">
+                                <h3>朴灿烈 (Chanyeol)</h3>
+                                <div class="type">阳光犬系型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">热情开朗</span>
+                            <span class="trait-tag">音乐才子</span>
+                            <span class="trait-tag">直球选手</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="do" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐧</div>
+                            <div class="character-info">
+                                <h3>都暻秀 (D.O.)</h3>
+                                <div class="type">内敛务实型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">沉稳内敛</span>
+                            <span class="trait-tag">演技派</span>
+                            <span class="trait-tag">行动派</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="kai" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐻</div>
+                            <div class="character-info">
+                                <h3>金钟仁 (Kai)</h3>
+                                <div class="type">舞台王者型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">舞台魅力</span>
+                            <span class="trait-tag">反差萌</span>
+                            <span class="trait-tag">时尚icon</span>
+                        </div>
+                    </div>
+
+                    <div class="character-card" data-character="sehun" onclick="selectCharacter(this)">
+                        <div class="character-header">
+                            <div class="character-avatar">🐤</div>
+                            <div class="character-info">
+                                <h3>吴世勋 (Sehun)</h3>
+                                <div class="type">傲娇忙内型</div>
+                            </div>
+                        </div>
+                        <div class="character-traits">
+                            <span class="trait-tag">外冷内热</span>
+                            <span class="trait-tag">傲娇</span>
+                            <span class="trait-tag">忠诚</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 追星程度 -->
+                <div class="section-title" style="margin-top: 30px;">
+                    <span>⭐</span> 追星程度
+                </div>
+                
+                <div class="selection-grid" id="fanLevelSelection">
+                    <div class="selection-card" data-level="casual" onclick="selectFanLevel(this)">
+                        <div class="emoji">😊</div>
+                        <div class="title">路人粉</div>
+                        <div class="desc">偶尔听听歌，不太了解细节</div>
+                    </div>
+                    <div class="selection-card" data-level="normal" onclick="selectFanLevel(this)">
+                        <div class="emoji">🎵</div>
+                        <div class="title">普通粉丝</div>
+                        <div class="desc">会关注回归和综艺</div>
+                    </div>
+                    <div class="selection-card" data-level="hardcore" onclick="selectFanLevel(this)">
+                        <div class="emoji">🔥</div>
+                        <div class="title">死忠粉</div>
+                        <div class="desc">了解每个人的习惯和喜好</div>
+                    </div>
+                </div>
+
+                <!-- 剧情节奏 -->
+                <div class="section-title" style="margin-top: 30px;">
+                    <span>⏱️</span> 剧情节奏
+                </div>
+                
+                <div class="selection-grid" id="paceSelection">
+                    <div class="selection-card" data-pace="slow" onclick="selectPace(this)">
+                        <div class="emoji">🐢</div>
+                        <div class="title">慢节奏</div>
+                        <div class="desc">细水长流，慢慢发展</div>
+                    </div>
+                    <div class="selection-card" data-pace="normal" onclick="selectPace(this)">
+                        <div class="emoji">🚶</div>
+                        <div class="title">正常节奏</div>
+                        <div class="desc">自然推进，张弛有度</div>
+                    </div>
+                    <div class="selection-card" data-pace="fast" onclick="selectPace(this)">
+                        <div class="emoji">🏃</div>
+                        <div class="title">快节奏</div>
+                        <div class="desc">剧情紧凑，发展迅速</div>
+                    </div>
+                </div>
+
+                <div class="btn-group" style="margin-top: 40px;">
+                    <button class="btn btn-secondary" onclick="showScreen('homeScreen')">
+                        <span>↩️</span> 返回
+                    </button>
+                    <button class="btn btn-primary" onclick="confirmCharacterCreate()">
+                        <span>✨</span> 确定创建
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 游戏主界面 ==================== -->
+        <div id="gameMainScreen" class="screen hidden">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span>💕</span>
+                    <span class="label">好感度：</span>
+                    <span class="value" id="affectionValue">0</span>
+                </div>
+                <div class="status-item">
+                    <span>📅</span>
+                    <span class="label">第</span>
+                    <span class="value" id="dayValue">1</span>
+                    <span class="label">天</span>
+                </div>
+                <div class="status-item">
+                    <span>🎭</span>
+                    <span class="label">当前：</span>
+                    <span class="value" id="currentScene">初遇</span>
+                </div>
+                <div class="status-item">
+                    <button class="btn btn-small btn-secondary" onclick="showScreen('saveGameScreen')">
+                        <span>💾</span> 存档
+                    </button>
+                </div>
+            </div>
+
+            <!-- 舆论面板 -->
+            <div class="opinion-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="font-weight: 600; color: var(--text-dark);">📊 公共舆论</span>
+                    <button class="btn btn-small btn-secondary" onclick="toggleOpinionDetail()">
+                        <span>📈</span> 详情
+                    </button>
+                </div>
+                <div class="opinion-meter">
+                    <span style="font-size: 0.9rem;">粉丝态度</span>
+                    <div class="opinion-bar">
+                        <div class="opinion-fill neutral" id="fanOpinionBar" style="width: 50%"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; font-weight: 600;" id="fanOpinionText">中立</span>
+                </div>
+                <div class="opinion-meter">
+                    <span style="font-size: 0.9rem;">公司态度</span>
+                    <div class="opinion-bar">
+                        <div class="opinion-fill neutral" id="companyOpinionBar" style="width: 50%"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; font-weight: 600;" id="companyOpinionText">观望</span>
+                </div>
+                <div class="opinion-meter">
+                    <span style="font-size: 0.9rem;">媒体关注</span>
+                    <div class="opinion-bar">
+                        <div class="opinion-fill neutral" id="mediaAttentionBar" style="width: 30%"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; font-weight: 600;" id="mediaAttentionText">低</span>
+                </div>
+            </div>
+
+            <!-- 剧情显示区 -->
+            <div class="card">
+                <div id="storyContent">
+                    <div class="loading">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 选项区 -->
+            <div id="optionsContainer" class="card hidden">
+                <div class="section-title">
+                    <span>💭</span> 你的选择
+                </div>
+                <div id="optionsList"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 舆论详情界面 ==================== -->
+        <div id="opinionDetailScreen" class="screen hidden">
+            <div class="card fade-in">
+                <div class="section-title">
+                    <span>📊</span> 舆论详情
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h4 style="color: var(--hot-pink); margin-bottom: 15px;">🌸 粉丝舆论</h4>
+                    <div style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <div class="opinion-meter">
+                            <span>支持度</span>
+                            <div class="opinion-bar">
+                                <div class="opinion-fill positive" id="detailFanSupport" style="width: 30%"></div>
+                            </div>
+                            <span id="detailFanSupportText">30%</span>
+                        </div>
+                        <div class="opinion-meter">
+                            <span>怀疑度</span>
+                            <div class="opinion-bar">
+                                <div class="opinion-fill negative" id="detailFanDoubt" style="width: 40%"></div>
+                            </div>
+                            <span id="detailFanDoubtText">40%</span>
+                        </div>
+                        <div class="opinion-meter">
+                            <span>反对度</span>
+                            <div class="opinion-bar">
+                                <div class="opinion-fill negative" id="detailFanOppose" style="width: 30%"></div>
+                            </div>
+                            <span id="detailFanOpposeText">30%</span>
+                        </div>
+                    </div>
+
+                    <h4 style="color: var(--hot-pink); margin-bottom: 15px;">🏢 公司态度</h4>
+                    <div style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <p style="line-height: 1.8; color: var(--text-dark);" id="companyAttitudeText">
+                            公司目前处于观望状态，尚未注意到你们的关系。
+                        </p>
+                    </div>
+
+                    <h4 style="color: var(--hot-pink); margin-bottom: 15px;">📰 媒体动态</h4>
+                    <div style="background: white; border-radius: 12px; padding: 15px;" id="mediaNewsList">
+                        <p style="color: var(--text-light); font-style: italic;">暂无相关报道...</p>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('gameMainScreen')">
+                        <span>↩️</span> 返回游戏
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 存档界面 ==================== -->
+        <div id="saveGameScreen" class="screen hidden">
+            <div class="card fade-in">
+                <div class="section-title">
+                    <span>💾</span> 游戏存档
+                </div>
+
+                <div class="save-list" id="saveList">
+                    <!-- 动态生成存档列表 -->
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createNewSave()">
+                        <span>➕</span> 新建存档
+                    </button>
+                    <button class="btn btn-secondary" onclick="showScreen('gameMainScreen')">
+                        <span>↩️</span> 返回游戏
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 读取游戏界面 ==================== -->
+        <div id="loadGameScreen" class="screen hidden">
+            <div class="card fade-in">
+                <div class="section-title">
+                    <span>📂</span> 读取存档
+                </div>
+
+                <div class="save-list" id="loadSaveList">
+                    <!-- 动态生成存档列表 -->
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('homeScreen')">
+                        <span>↩️</span> 返回首页
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 游戏状态管理 ====================
+        const GameState = {
+            apiConfig: {
+                endpoint: '',
+                key: '',
+                model: 'gpt-3.5-turbo',
+                customName: '',
+                isConnected: false
+            },
+            player: {
+                name: '',
+                age: 20,
+                identity: '',
+                identityName: '',
+                fanLevel: '',
+                pace: ''
+            },
+            character: {
+                id: '',
+                name: '',
+                englishName: ''
+            },
+            game: {
+                day: 1,
+                affection: 0,
+                scene: '初遇',
+                history: [],
+                fanOpinion: 50,
+                companyOpinion: 50,
+                mediaAttention: 30
+            },
+            saves: []
+        };
+
+        // 角色信息
+        const CHARACTERS = {
+            xiumin: { name: '金珉锡', englishName: 'Xiumin', emoji: '🐱' },
+            suho: { name: '金俊勉', englishName: 'Suho', emoji: '🐰' },
+            lay: { name: '张艺兴', englishName: 'Lay', emoji: '🦄' },
+            baekhyun: { name: '边伯贤', englishName: 'Baekhyun', emoji: '🐶' },
+            chen: { name: '金钟大', englishName: 'Chen', emoji: '🦕' },
+            chanyeol: { name: '朴灿烈', englishName: 'Chanyeol', emoji: '🐟' },
+            do: { name: '都暻秀', englishName: 'D.O.', emoji: '🐧' },
+            kai: { name: '金钟仁', englishName: 'Kai', emoji: '🐻' },
+            sehun: { name: '吴世勋', englishName: 'Sehun', emoji: '🐤' }
+        };
+
+        // 身份名称映射
+        const IDENTITY_NAMES = {
+            student: '留学生',
+            fan: 'EXO-L / 海外粉丝',
+            intern: '娱乐公司实习生',
+            staff: '音乐节目工作人员',
+            stylist: '妆造师/发型助理',
+            translator: '翻译/海外商务助理',
+            parttime: '咖啡店/便利店兼职',
+            custom: '自定义身份'
+        };
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initBackground();
+            loadSavedData();
+            updateAPIStatus();
+        });
+
+        // 初始化背景装饰
+        function initBackground() {
+            const container = document.getElementById('bgDecoration');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '✨', '🌸', '🎭'];
+            
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(heart);
+            }
+        }
+
+        // ==================== 界面切换 ====================
+        function showScreen(screenId) {
+            // 隐藏所有屏幕
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            
+            // 显示目标屏幕
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+                targetScreen.classList.add('fade-in');
+            }
+            
+            // 特殊处理
+            if (screenId === 'saveGameScreen') {
+                renderSaveList();
+            } else if (screenId === 'loadGameScreen') {
+                renderLoadList();
+            }
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== API配置 ====================
+        async function testAPIConnection() {
+            const endpoint = document.getElementById('apiEndpoint').value.trim();
+            const key = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('apiModel').value.trim();
+
+            if (!endpoint || !key) {
+                showToast('请填写API端点和密钥', 'error');
+                return;
+            }
+
+            const resultDiv = document.getElementById('apiTestResult');
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${key}`
+                    },
+                    body: JSON.stringify({
+                        model: model || 'gpt-3.5-turbo',
+                        messages: [{ role: 'user', content: 'Hello' }],
+                        max_tokens: 5
+                    })
+                });
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #E8F5E9; border-radius: 12px; padding: 15px; color: #2E7D32;">
+                            ✅ API连接成功！可以正常使用。
+                        </div>
+                    `;
+                    GameState.apiConfig.isConnected = true;
+                } else {
+                    const error = await response.text();
+                    resultDiv.innerHTML = `
+                        <div style="background: #FFEBEE; border-radius: 12px; padding: 15px; color: #C62828;">
+                            ❌ 连接失败：${response.status} ${response.statusText}<br>
+                            <small>${error.substring(0, 200)}</small>
+                        </div>
+                    `;
+                    GameState.apiConfig.isConnected = false;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #FFEBEE; border-radius: 12px; padding: 15px; color: #C62828;">
+                        ❌ 连接错误：${error.message}
+                    </div>
+                `;
+                GameState.apiConfig.isConnected = false;
+            }
+        }
+
+        function saveAPIConfig() {
+            const endpoint = document.getElementById('apiEndpoint').value.trim();
+            const key = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('apiModel').value.trim();
+            const customName = document.getElementById('customModelName').value.trim();
+
+            if (!endpoint || !key) {
+                showToast('请填写API端点和密钥', 'error');
+                return;
+            }
+
+            GameState.apiConfig = {
+                endpoint,
+                key,
+                model: model || 'gpt-3.5-turbo',
+                customName,
+                isConnected: GameState.apiConfig.isConnected
+            };
+
+            localStorage.setItem('exoGame_apiConfig', JSON.stringify({
+                endpoint,
+                model: GameState.apiConfig.model,
+                customName
+            }));
+
+            updateAPIStatus();
+            showToast('配置已保存！', 'success');
+            
+            setTimeout(() => {
+                showScreen('homeScreen');
+            }, 1000);
+        }
+
+        function updateAPIStatus() {
+            const statusEl = document.getElementById('apiStatusHome');
+            const startBtn = document.getElementById('startGameBtn');
+            
+            if (GameState.apiConfig.isConnected) {
+                statusEl.innerHTML = `
+                    <span class="api-status connected">
+                        <span>✅</span> API已连接
+                    </span>
+                `;
+                startBtn.disabled = false;
+            } else {
+                statusEl.innerHTML = `
+                    <span class="api-status disconnected">
+                        <span>⚠️</span> API未配置
+                    </span>
+                `;
+                startBtn.disabled = true;
+            }
+        }
+
+        // ==================== 角色创建 ====================
+        function selectIdentity(element) {
+            document.querySelectorAll('#identitySelection .selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            GameState.player.identity = element.dataset.identity;
+            GameState.player.identityName = IDENTITY_NAMES[element.dataset.identity];
+        }
+
+        function selectCharacter(element) {
+            document.querySelectorAll('#characterSelection .character-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const charId = element.dataset.character;
+            GameState.character = {
+                id: charId,
+                ...CHARACTERS[charId]
+            };
+        }
+
+        function selectFanLevel(element) {
+            document.querySelectorAll('#fanLevelSelection .selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            GameState.player.fanLevel = element.dataset.level;
+        }
+
+        function selectPace(element) {
+            document.querySelectorAll('#paceSelection .selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            GameState.player.pace = element.dataset.pace;
+        }
+
+        function confirmCharacterCreate() {
+            const name = document.getElementById('playerName').value.trim();
+            const age = parseInt(document.getElementById('playerAge').value);
+
+            if (!name) {
+                showToast('请输入你的名字', 'error');
+                return;
+            }
+            if (!age || age < 18) {
+                showToast('请输入有效的年龄（18岁以上）', 'error');
+                return;
+            }
+            if (!GameState.player.identity) {
+                showToast('请选择你的身份', 'error');
+                return;
+            }
+            if (!GameState.character.id) {
+                showToast('请选择攻略对象', 'error');
+                return;
+            }
+            if (!GameState.player.fanLevel) {
+                showToast('请选择追星程度', 'error');
+                return;
+            }
+            if (!GameState.player.pace) {
+                showToast('请选择剧情节奏', 'error');
+                return;
+            }
+
+            GameState.player.name = name;
+            GameState.player.age = age;
+
+            // 开始游戏
+            startGame();
+        }
+
+        // ==================== 游戏流程 ====================
+        function startNewGame() {
+            if (!GameState.apiConfig.isConnected) {
+                showToast('请先配置并测试API连接', 'error');
+                showScreen('apiConfigScreen');
+                return;
+            }
+            showScreen('characterCreateScreen');
+        }
+
+        async function startGame() {
+            showScreen('gameMainScreen');
+            updateStatusBar();
+            
+            // 生成开场剧情
+            const openingPrompt = generateOpeningPrompt();
+            await generateStory(openingPrompt);
+        }
+
+        function generateOpeningPrompt() {
+            return `你是韩娱嫂子模拟器游戏的DM。请根据以下设定生成开场剧情：
+
+玩家信息：
+- 姓名：${GameState.player.name}
+- 年龄：${GameState.player.age}
+- 身份：${GameState.player.identityName}
+- 追星程度：${GameState.player.fanLevel}
+
+攻略对象：${GameState.character.name}（${GameState.character.englishName}）
+
+请生成一段约300字的开场剧情，描述玩家与${GameState.character.name}的初遇场景。要符合${GameState.player.identityName}的身份设定，体现韩娱圈的真实感。剧情结束后给出3-4个玩家可以选择的行动。`;
+        }
+
+        async function generateStory(prompt) {
+            const storyDiv = document.getElementById('storyContent');
+            storyDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(GameState.apiConfig.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GameState.apiConfig.key}`
+                    },
+                    body: JSON.stringify({
+                        model: GameState.apiConfig.model,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: `你是韩娱嫂子模拟器游戏的DM。这是一个EXO同人向平行世界恋爱模拟游戏。
+游戏基调：写实向，七分甜三分虐，强调普通人闯入韩娱世界的真实感。
+攻略对象：${GameState.character.name}（${GameState.character.englishName}）
+玩家身份：${GameState.player.identityName}
+
+请遵循以下规则：
+1. 所有EXO成员姓名使用"中文名（英文艺名）"格式
+2. 剧情要真实、有代入感，避免爽文套路
+3. 允许BE，选择会影响感情线、事业线、舆论线
+4. 保持七分甜三分虐的基调
+5. 每次回复约300-500字剧情+3-4个选项`
+                            },
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 1500
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = data.choices[0].message.content;
+                    displayStory(content);
+                } else {
+                    throw new Error('API请求失败');
+                }
+            } catch (error) {
+                storyDiv.innerHTML = `
+                    <div class="story-text">
+                        <p>❌ 生成剧情时出错：${error.message}</p>
+                        <p>请检查API配置是否正确。</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayStory(content) {
+            const storyDiv = document.getElementById('storyContent');
+            
+            // 解析剧情和选项
+            const parts = content.split(/\n\n(?=选项|选择|【选项|【选择)/);
+            const story = parts[0];
+            let options = [];
+            
+            if (parts.length > 1) {
+                const optionText = parts[1];
+                const optionMatches = optionText.match(/[\dA-D][\.\、\.]\s*([^\n]+)/g);
+                if (optionMatches) {
+                    options = optionMatches.map(opt => opt.replace(/^[\dA-D][\.\、\.]\s*/, '').trim());
+                }
+            }
+
+            // 格式化剧情文本
+            const formattedStory = story
+                .replace(/金珉锡|金俊勉|张艺兴|边伯贤|金钟大|朴灿烈|都暻秀|金钟仁|吴世勋/g, match => {
+                    const char = Object.values(CHARACTERS).find(c => c.name === match);
+                    return char ? `${char.name}（${char.englishName}）` : match;
+                })
+                .replace(/\n/g, '</p><p>');
+
+            storyDiv.innerHTML = `<div class="story-text"><p>${formattedStory}</p></div>`;
+
+            // 显示选项
+            if (options.length > 0) {
+                const optionsContainer = document.getElementById('optionsContainer');
+                const optionsList = document.getElementById('optionsList');
+                
+                optionsList.innerHTML = options.map((opt, index) => `
+                    <button class="btn btn-option" onclick="selectOption(${index}, '${opt.replace(/'/g, "\\'")}')">
+                        <span>${['💕', '💭', '✨', '🌸'][index] || '💕'}</span> ${opt}
+                    </button>
+                `).join('');
+                
+                optionsContainer.classList.remove('hidden');
+            }
+
+            // 保存到历史
+            GameState.game.history.push({ story, options });
+        }
+
+        async function selectOption(index, optionText) {
+            // 隐藏选项
+            document.getElementById('optionsContainer').classList.add('hidden');
+            
+            // 更新游戏状态
+            GameState.game.day++;
+            GameState.game.affection += Math.floor(Math.random() * 10) - 3; // 随机增减好感度
+            
+            // 更新舆论
+            updateOpinion(index);
+            
+            updateStatusBar();
+            
+            // 生成下一段剧情
+            const prompt = `玩家选择了：${optionText}
+
+请继续剧情，约300-500字。注意：
+1. 根据玩家的选择推进剧情
+2. 体现${GameState.character.name}（${GameState.character.englishName}）的性格特点
+3. 保持写实风格，七分甜三分虐
+4. 剧情结束后给出3-4个新的选项`;
+            
+            await generateStory(prompt);
+        }
+
+        function updateOpinion(choiceIndex) {
+            // 根据选择影响舆论
+            const change = (Math.random() - 0.5) * 20;
+            GameState.game.fanOpinion = Math.max(0, Math.min(100, GameState.game.fanOpinion + change));
+            GameState.game.companyOpinion = Math.max(0, Math.min(100, GameState.game.companyOpinion + change * 0.5));
+            GameState.game.mediaAttention = Math.max(0, Math.min(100, GameState.game.mediaAttention + Math.random() * 10));
+        }
+
+        function updateStatusBar() {
+            document.getElementById('affectionValue').textContent = GameState.game.affection;
+            document.getElementById('dayValue').textContent = GameState.game.day;
+            document.getElementById('currentScene').textContent = GameState.game.scene;
+            
+            // 更新舆论条
+            updateOpinionBars();
+        }
+
+        function updateOpinionBars() {
+            const fanBar = document.getElementById('fanOpinionBar');
+            const fanText = document.getElementById('fanOpinionText');
+            const companyBar = document.getElementById('companyOpinionBar');
+            const companyText = document.getElementById('companyOpinionText');
+            const mediaBar = document.getElementById('mediaAttentionBar');
+            const mediaText = document.getElementById('mediaAttentionText');
+            
+            fanBar.style.width = GameState.game.fanOpinion + '%';
+            fanBar.className = 'opinion-fill ' + (GameState.game.fanOpinion > 60 ? 'positive' : GameState.game.fanOpinion < 40 ? 'negative' : 'neutral');
+            fanText.textContent = GameState.game.fanOpinion > 60 ? '支持' : GameState.game.fanOpinion < 40 ? '质疑' : '中立';
+            
+            companyBar.style.width = GameState.game.companyOpinion + '%';
+            companyBar.className = 'opinion-fill ' + (GameState.game.companyOpinion > 60 ? 'positive' : GameState.game.companyOpinion < 40 ? 'negative' : 'neutral');
+            companyText.textContent = GameState.game.companyOpinion > 60 ? '默许' : GameState.game.companyOpinion < 40 ? '警告' : '观望';
+            
+            mediaBar.style.width = GameState.game.mediaAttention + '%';
+            mediaBar.className = 'opinion-fill ' + (GameState.game.mediaAttention > 70 ? 'negative' : 'neutral');
+            mediaText.textContent = GameState.game.mediaAttention > 70 ? '高' : GameState.game.mediaAttention > 40 ? '中' : '低';
+        }
+
+        function toggleOpinionDetail() {
+            showScreen('opinionDetailScreen');
+            updateOpinionDetail();
+        }
+
+        function updateOpinionDetail() {
+            // 更新详细舆论数据
+            const support = Math.max(0, Math.min(100, GameState.game.fanOpinion));
+            const doubt = Math.max(0, Math.min(100, 100 - support));
+            const oppose = Math.max(0, Math.min(100, 100 - support - 20));
+            
+            document.getElementById('detailFanSupport').style.width = support + '%';
+            document.getElementById('detailFanSupportText').textContent = Math.round(support) + '%';
+            document.getElementById('detailFanDoubt').style.width = doubt + '%';
+            document.getElementById('detailFanDoubtText').textContent = Math.round(doubt) + '%';
+            document.getElementById('detailFanOppose').style.width = oppose + '%';
+            document.getElementById('detailFanOpposeText').textContent = Math.round(oppose) + '%';
+            
+            // 公司态度文本
+            const companyTexts = {
+                high: '公司对你的存在表示关注，建议保持低调。',
+                mid: '公司目前处于观望状态，尚未注意到你们的关系。',
+                low: '公司态度友善，对艺人的私生活给予一定空间。'
+            };
+            document.getElementById('companyAttitudeText').textContent = 
+                GameState.game.companyOpinion > 60 ? companyTexts.high :
+                GameState.game.companyOpinion > 40 ? companyTexts.mid : companyTexts.low;
+        }
+
+        // ==================== 存档系统 ====================
+        function createNewSave() {
+            const saveData = {
+                id: Date.now(),
+                name: `${GameState.character.name} - 第${GameState.game.day}天`,
+                date: new Date().toLocaleString('zh-CN'),
+                data: JSON.parse(JSON.stringify(GameState))
+            };
+            
+            GameState.saves.push(saveData);
+            localStorage.setItem('exoGame_saves', JSON.stringify(GameState.saves));
+            
+            renderSaveList();
+            showToast('存档成功！', 'success');
+        }
+
+        function renderSaveList() {
+            const list = document.getElementById('saveList');
+            
+            if (GameState.saves.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">暂无存档</p>';
+                return;
+            }
+            
+            list.innerHTML = GameState.saves.map(save => `
+                <div class="save-item">
+                    <div class="save-info">
+                        <h4>${save.name}</h4>
+                        <div class="meta">${save.date}</div>
+                    </div>
+                    <div class="save-actions">
+                        <button class="btn btn-small btn-primary" onclick="loadSave(${save.id})">
+                            <span>📂</span> 读取
+                        </button>
+                        <button class="btn btn-small btn-secondary" onclick="deleteSave(${save.id})">
+                            <span>🗑️</span> 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLoadList() {
+            const list = document.getElementById('loadSaveList');
+            const saves = JSON.parse(localStorage.getItem('exoGame_saves') || '[]');
+            GameState.saves = saves;
+            
+            if (saves.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">暂无存档</p>';
+                return;
+            }
+            
+            list.innerHTML = saves.map(save => `
+                <div class="save-item" onclick="loadSaveAndStart(${save.id})">
+                    <div class="save-info">
+                        <h4>${save.name}</h4>
+                        <div class="meta">${save.date}</div>
+                    </div>
+                    <div class="save-actions">
+                        <button class="btn btn-small btn-primary">
+                            <span>📂</span> 读取
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadSave(saveId) {
+            const save = GameState.saves.find(s => s.id === saveId);
+            if (save) {
+                Object.assign(GameState, save.data);
+                updateStatusBar();
+                showScreen('gameMainScreen');
+                showToast('存档已读取', 'success');
+            }
+        }
+
+        function loadSaveAndStart(saveId) {
+            loadSave(saveId);
+        }
+
+        function deleteSave(saveId) {
+            if (confirm('确定要删除这个存档吗？')) {
+                GameState.saves = GameState.saves.filter(s => s.id !== saveId);
+                localStorage.setItem('exoGame_saves', JSON.stringify(GameState.saves));
+                renderSaveList();
+                showToast('存档已删除', 'success');
+            }
+        }
+
+        // ==================== 工具函数 ====================
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${type === 'success' ? '✅' : '❌'}</span>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function loadSavedData() {
+            // 加载API配置
+            const savedConfig = localStorage.getItem('exoGame_apiConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                document.getElementById('apiEndpoint').value = config.endpoint || '';
+                document.getElementById('apiModel').value = config.model || 'gpt-3.5-turbo';
+                document.getElementById('customModelName').value = config.customName || '';
+            }
+            
+            // 加载存档列表
+            const savedSaves = localStorage.getItem('exoGame_saves');
+            if (savedSaves) {
+                GameState.saves = JSON.parse(savedSaves);
+            }
+        }
+    </script>
+</body>
+</html>
