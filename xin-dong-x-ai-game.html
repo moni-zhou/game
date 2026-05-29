@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>粉白心动文游 - AI互动文字游戏</title>
+  <style>
+    :root{
+      --pink:#ff7ab6;
+      --pink2:#ffa8d0;
+      --rose:#ff4f9a;
+      --peach:#ffc3a0;
+      --lav:#b69cff;
+      --mint:#89f0d0;
+      --sky:#8fd3ff;
+      --cream:#fff7fb;
+      --white:#ffffff;
+      --ink:#453044;
+      --muted:#7f657b;
+      --line:rgba(255,122,182,.22);
+      --glass:rgba(255,255,255,.74);
+      --shadow:0 24px 70px rgba(255,91,159,.20), 0 12px 28px rgba(83,37,83,.10);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:"Microsoft YaHei UI","PingFang SC","Noto Sans SC",system-ui,-apple-system,Segoe UI,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(255,168,208,.82), transparent 25%),
+        radial-gradient(circle at 92% 12%, rgba(182,156,255,.56), transparent 24%),
+        radial-gradient(circle at 80% 86%, rgba(137,240,208,.38), transparent 26%),
+        radial-gradient(circle at 16% 86%, rgba(255,195,160,.46), transparent 28%),
+        linear-gradient(135deg,#fff8fc 0%,#ffe7f2 45%,#fffdf7 100%);
+      overflow-x:hidden;
+    }
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px);
+      background-size:42px 42px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.65), transparent 72%);
+      z-index:0;
+    }
+    .floaties{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0}
+    .bubble{position:absolute; width:16px; height:16px; border-radius:50%; background:rgba(255,122,182,.24); filter:blur(.2px); animation:rise 12s infinite ease-in-out}
+    .bubble:nth-child(2){left:16%; top:78%; width:24px; height:24px; animation-delay:1s; background:rgba(182,156,255,.26)}
+    .bubble:nth-child(3){left:78%; top:75%; width:18px; height:18px; animation-delay:2.2s; background:rgba(137,240,208,.32)}
+    .bubble:nth-child(4){left:88%; top:38%; width:30px; height:30px; animation-delay:.4s; background:rgba(255,195,160,.28)}
+    .bubble:nth-child(5){left:5%; top:55%; width:22px; height:22px; animation-delay:3s; background:rgba(143,211,255,.30)}
+    @keyframes rise{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-36px) scale(1.18)}}
+    .app{position:relative; z-index:1; width:min(1240px, calc(100% - 28px)); margin:0 auto; padding:26px 0 42px}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.02em}
+    .logo{width:54px; height:54px; display:grid; place-items:center; border-radius:19px; background:linear-gradient(135deg,#ff7ab6,#ffc3e0 50%,#b69cff); color:#fff; box-shadow:0 15px 35px rgba(255,91,159,.35); font-size:28px}
+    .brand small{display:block; color:var(--muted); font-weight:700; margin-top:2px}
+    .nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    button,.btn{border:0; border-radius:999px; padding:12px 18px; color:#fff; background:linear-gradient(135deg,var(--rose),var(--pink2)); box-shadow:0 12px 28px rgba(255,79,154,.23); cursor:pointer; font-weight:850; letter-spacing:.02em; transition:.18s transform,.18s box-shadow,.18s filter; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px}
+    button:hover,.btn:hover{transform:translateY(-2px); box-shadow:0 16px 34px rgba(255,79,154,.30); filter:saturate(1.08)}
+    button:disabled{opacity:.55; cursor:not-allowed; transform:none; filter:grayscale(.15)}
+    .ghost{background:rgba(255,255,255,.68); color:var(--rose); border:1px solid var(--line); box-shadow:none}
+    .mint{background:linear-gradient(135deg,#36d6b2,#8fd3ff)}
+    .lav{background:linear-gradient(135deg,#9d7cff,#ff93c7)}
+    .danger{background:linear-gradient(135deg,#ff5f7c,#ff9d7a)}
+    .screen{display:none; animation:fadeIn .28s ease-out}
+    .screen.active{display:block}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+    .card{background:var(--glass); border:1px solid rgba(255,255,255,.82); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(18px); overflow:hidden}
+    .hero{display:grid; grid-template-columns:1.05fr .95fr; gap:20px; padding:34px}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; color:var(--rose); background:rgba(255,122,182,.13); border:1px solid var(--line); padding:8px 13px; border-radius:999px; font-weight:900}
+    h1{font-size:clamp(34px,5vw,66px); margin:18px 0 14px; line-height:1.05; letter-spacing:-.04em}
+    h2{font-size:clamp(24px,3vw,38px); margin:0 0 16px; letter-spacing:-.03em}
+    h3{margin:0 0 10px; font-size:20px}
+    .gradient-text{background:linear-gradient(100deg,#ff3f97,#ff9fbd,#9d7cff,#33ccb0); -webkit-background-clip:text; background-clip:text; color:transparent}
+    .lead{font-size:17px; line-height:1.9; color:#60485d; margin:0 0 22px}
+    .pillrow{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0}
+    .pill{padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.72); border:1px solid var(--line); color:#7d5272; font-weight:800}
+    .hero-art{min-height:420px; position:relative; border-radius:26px; background:
+      radial-gradient(circle at 55% 18%, rgba(255,255,255,.95), transparent 19%),
+      radial-gradient(circle at 22% 38%, rgba(255,122,182,.36), transparent 22%),
+      radial-gradient(circle at 78% 58%, rgba(182,156,255,.30), transparent 25%),
+      linear-gradient(145deg,rgba(255,255,255,.74),rgba(255,238,247,.68)); border:1px solid rgba(255,255,255,.86); overflow:hidden}
+    .phone{position:absolute; inset:50px 38px 36px auto; width:min(330px,76%); border-radius:34px; background:#fff; box-shadow:0 30px 70px rgba(70,40,75,.18); padding:16px; transform:rotate(2deg)}
+    .phone-head{height:32px; display:flex; align-items:center; gap:7px}.dot{width:9px; height:9px; border-radius:50%; background:var(--pink)}.dot:nth-child(2){background:var(--lav)}.dot:nth-child(3){background:var(--mint)}
+    .chat{padding:14px; border-radius:22px; background:linear-gradient(180deg,#fff6fb,#fff); min-height:285px; display:flex; flex-direction:column; gap:12px}
+    .msg{max-width:86%; padding:12px 14px; border-radius:18px; line-height:1.55; font-weight:700; box-shadow:0 8px 18px rgba(255,122,182,.13)}
+    .msg.left{background:#fff; border-top-left-radius:6px}.msg.right{background:linear-gradient(135deg,#ff8fbe,#b69cff); color:#fff; align-self:flex-end; border-top-right-radius:6px}
+    .sticker{position:absolute; left:28px; bottom:32px; width:170px; padding:18px; background:rgba(255,255,255,.82); border:1px solid rgba(255,255,255,.85); border-radius:26px; box-shadow:0 18px 40px rgba(255,122,182,.18); transform:rotate(-6deg)}
+    .layout{display:grid; grid-template-columns:320px 1fr; gap:18px}
+    .panel{padding:22px}.section-title{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px}.muted{color:var(--muted)}
+    .field{display:grid; gap:7px; margin-bottom:15px}.field label{font-weight:900; color:#62445f}.hint{font-size:12px; color:#8d7188; line-height:1.6}
+    input,textarea,select{width:100%; border:1px solid rgba(255,122,182,.25); background:rgba(255,255,255,.82); border-radius:18px; color:var(--ink); padding:13px 14px; font:inherit; outline:none; transition:.16s border,.16s box-shadow; box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+    textarea{resize:vertical; min-height:112px; line-height:1.65}
+    input:focus,textarea:focus,select:focus{border-color:rgba(255,79,154,.65); box-shadow:0 0 0 4px rgba(255,122,182,.14)}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+    .notice{border-radius:22px; padding:14px 16px; background:rgba(255,255,255,.68); border:1px dashed rgba(255,79,154,.32); line-height:1.75}.ok{color:#159b7d}.bad{color:#d83e65}
+    .main-grid{display:grid; grid-template-columns:330px minmax(0,1fr); gap:18px; align-items:start}
+    .stat-card{padding:20px}.stat{margin:13px 0}.stat-top{display:flex; justify-content:space-between; font-weight:900; margin-bottom:7px; gap:8px}.bar{height:12px; background:rgba(255,122,182,.14); border-radius:999px; overflow:hidden}.bar i{display:block; height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#ff69ac,#ffc16f,#8ee7d1); transition:.4s width}
+    .cast-list{display:grid; gap:8px; margin-top:12px}.cast-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; border-radius:18px; background:rgba(255,255,255,.58); border:1px solid rgba(255,122,182,.16); font-size:14px}.cast-item b{font-size:14px}.tag{font-size:12px; border-radius:999px; padding:5px 9px; background:rgba(182,156,255,.16); color:#7355b8; font-weight:900; white-space:nowrap}
+    .story-card{padding:0}.story-head{padding:22px 24px; background:linear-gradient(135deg,rgba(255,122,182,.20),rgba(182,156,255,.16),rgba(137,240,208,.12)); border-bottom:1px solid rgba(255,122,182,.16); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap}.chapter{font-weight:950; color:var(--rose); font-size:14px; letter-spacing:.04em}.story-title{margin:4px 0 0; font-size:28px; font-weight:950}.story-body{padding:26px; font-size:17px; line-height:2.05; white-space:normal}.story-body p{margin:0 0 16px}.choice-box{padding:0 26px 26px}.choices{display:grid; gap:12px; margin:16px 0}.choice{width:100%; border-radius:22px; justify-content:flex-start; text-align:left; padding:15px 17px; background:rgba(255,255,255,.76); color:var(--ink); border:1px solid rgba(255,122,182,.22); box-shadow:0 10px 24px rgba(255,122,182,.10)}.choice:hover{background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,232,244,.9)); color:#a32368}.choice .num{width:30px; height:30px; border-radius:12px; display:inline-grid; place-items:center; background:linear-gradient(135deg,#ff73af,#b69cff); color:#fff; flex:0 0 auto}.choice small{display:block; color:var(--muted); margin-top:5px; line-height:1.55; font-weight:650}.free-row{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end}.loader{display:none; align-items:center; gap:10px; color:var(--rose); font-weight:900}.loader.active{display:flex}.spinner{width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,122,182,.24); border-top-color:var(--rose); animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .slots{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}.slot{padding:18px; border-radius:24px; background:rgba(255,255,255,.7); border:1px solid rgba(255,122,182,.18); min-height:180px; display:flex; flex-direction:column; justify-content:space-between}.slot.empty{opacity:.82; background:rgba(255,255,255,.48)}.slot-title{font-weight:950; color:#7c3d70}.slot-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}.slot-actions button{padding:9px 12px; min-height:36px; font-size:13px}.history{max-height:280px; overflow:auto; display:grid; gap:10px; padding-right:4px}.history-item{padding:11px 12px; border-radius:16px; background:rgba(255,255,255,.58); border:1px solid rgba(255,122,182,.12); font-size:13px; line-height:1.6}.modal-mask{display:none; position:fixed; inset:0; background:rgba(61,30,55,.30); backdrop-filter:blur(8px); z-index:8; align-items:center; justify-content:center; padding:20px}.modal-mask.active{display:flex}.modal{width:min(720px,100%); max-height:88vh; overflow:auto; padding:24px}.toast{position:fixed; right:22px; bottom:22px; z-index:20; display:grid; gap:10px}.toast div{padding:13px 16px; background:rgba(255,255,255,.90); border:1px solid var(--line); border-radius:18px; box-shadow:0 16px 42px rgba(60,30,55,.16); font-weight:850; animation:fadeIn .2s ease-out}.kpi{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}.kpi .mini{padding:13px; border-radius:18px; background:rgba(255,255,255,.58); border:1px solid rgba(255,122,182,.14)}.mini b{display:block; font-size:22px; color:var(--rose)}
+    @media (max-width:980px){.hero,.layout,.main-grid{grid-template-columns:1fr}.hero-art{min-height:360px}.slots{grid-template-columns:1fr 1fr}.grid3,.kpi{grid-template-columns:1fr 1fr}.topbar{align-items:flex-start; flex-direction:column}.nav{justify-content:flex-start}}
+    @media (max-width:640px){.app{width:min(100% - 18px,1240px); padding-top:14px}.hero,.panel,.story-body,.choice-box{padding:18px}.phone{inset:36px 14px 32px auto}.sticker{display:none}.grid2,.grid3,.slots,.kpi,.free-row{grid-template-columns:1fr}.story-head{padding:18px}.nav button{padding:10px 12px}.main-grid{gap:12px}}
+  </style>
+</head>
+<body>
+  <div class="floaties"><i class="bubble" style="left:42%;top:82%"></i><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">💗</div>
+        <div>粉白心动文游<small>AI Interactive Fiction Card</small></div>
+      </div>
+      <nav class="nav">
+        <button class="ghost" data-nav="home">🏠 首页</button>
+        <button class="ghost" data-nav="config">🔑 API配置</button>
+        <button class="ghost" data-nav="saves">💾 存档</button>
+        <button class="ghost" id="quickSaveTop">✨ 快速存档</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="screen-home" class="screen active">
+        <div class="card hero">
+          <div>
+            <span class="eyebrow">🌸 文游背景：恋综小屋 / 隐藏X / 心动短信</span>
+            <h1><span class="gradient-text">心动X小屋</span><br/>AI互动文字游戏</h1>
+            <p class="lead">粉白色卡片式网页已集成首页、API配置、主剧情、3-5个玩家选项、自由输入、存档/读档、背景资料上传与连通测试。你将进入一档平行宇宙恋综，白天共同生活，夜晚发送心动短信，寻找隐藏的“X”与新的心跳。✨</p>
+            <div class="pillrow">
+              <span class="pill">💌 长段剧情</span><span class="pill">🎲 选项分支</span><span class="pill">📝 自由输入</span><span class="pill">🧠 AI续写</span><span class="pill">💾 本地存档</span>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px">
+              <button id="homeStart" class="lav">🎮 开始游戏</button>
+              <button id="homeConfig" class="mint">🔑 先配置API</button>
+              <button id="homeLoad" class="ghost">📂 读取存档</button>
+            </div>
+            <p class="hint" style="margin-top:16px">提示：开始游戏前必须保存API并通过连通测试。API密钥仅保存在你的浏览器 localStorage 中。</p>
+          </div>
+          <div class="hero-art">
+            <div class="phone">
+              <div class="phone-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+              <div class="chat">
+                <div class="msg left">今晚的心动短信，只能发给一个人。你会选谁？💗</div>
+                <div class="msg right">我想先确认，他是不是我的X。</div>
+                <div class="msg left">XRoom将在第7天开启，线索不会等人哦。</div>
+                <div class="msg right">那就从第一杯粉色气泡水开始吧。🌷</div>
+              </div>
+            </div>
+            <div class="sticker"><b>今日目标</b><br/><span class="muted">提升心动值，收集X情报，保持职业魅力。</span><div style="font-size:34px;margin-top:8px">💘🎬✨</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-config" class="screen">
+        <div class="layout">
+          <aside class="card panel">
+            <h2>🔑 API配置</h2>
+            <p class="lead" style="font-size:15px">请填写 OpenAI 兼容接口。配置完成后点击“测试连通”，成功后才可开始游戏。</p>
+            <div id="apiState" class="notice">尚未测试。</div>
+          </aside>
+          <div class="card panel">
+            <div class="grid2">
+              <div class="field">
+                <label for="apiEndpoint">API端点</label>
+                <input id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions" />
+                <div class="hint">可填完整 /chat/completions 地址，或 v1 baseURL。页面会自动补全常见路径。</div>
+              </div>
+              <div class="field">
+                <label for="apiModel">模型自定义名称</label>
+                <input id="apiModel" placeholder="gpt-4o-mini / deepseek-chat / your-model" />
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label for="apiKey">API密钥</label>
+                <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="apiTemp">创造性温度：<span id="tempLabel">0.85</span></label>
+                <input id="apiTemp" type="range" min="0" max="1.3" step="0.05" value="0.85" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="loreFile">上传/追加文游背景文件（可选）</label>
+              <input id="loreFile" type="file" accept=".txt,.md,.json,.pdf,text/plain,application/pdf" />
+              <div class="hint">已内置根据“夸克.pdf”整理的恋综/隐藏X背景。若在浏览器中上传PDF，将尝试使用在线 PDF.js 解析；离线时建议上传txt/md。</div>
+            </div>
+            <div class="field">
+              <label for="loreText">背景资料库（会随提示词发送给AI）</label>
+              <textarea id="loreText"></textarea>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button id="saveApi">💾 保存配置</button>
+              <button id="testApi" class="mint">🧪 测试连通</button>
+              <button id="clearApi" class="ghost">🧹 清空测试状态</button>
+              <button id="goCreate" class="lav">🎮 进入创建角色</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-create" class="screen">
+        <div class="card panel">
+          <div class="section-title"><div><h2>🌷 创建你的恋综档案</h2><p class="muted">你的资料会影响AI生成剧情与选项。</p></div><button class="ghost" data-nav="home">返回首页</button></div>
+          <div class="grid3">
+            <div class="field"><label>你的姓名/昵称</label><input id="playerName" placeholder="例如：林夕" /></div>
+            <div class="field"><label>职业</label><input id="playerJob" placeholder="例如：视觉设计师" /></div>
+            <div class="field"><label>MBTI</label><select id="playerMbti"><option>INFJ</option><option>ENFP</option><option>INTJ</option><option>ISFJ</option><option>ISTP</option><option>ENFJ</option><option>ISFP</option><option>ESTP</option></select></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>你的X是谁（节目旧关系）</label><select id="playerX"></select></div>
+            <div class="field"><label>你最想经营的路线</label><select id="playerRoute"><option>寻找真相，谨慎复合</option><option>放下过去，开启新心动</option><option>事业高光，魅力反转</option><option>修罗场推理，收集所有线索</option></select></div>
+          </div>
+          <div class="field"><label>额外人设/雷点/偏好</label><textarea id="playerPref" placeholder="例如：慢热但观察力强；喜欢细节照顾；不接受强迫与露骨内容；希望剧情酸甜拉扯。"></textarea></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap"><button id="beginGame" class="lav">✨ 确认入住小屋</button><button id="randomProfile" class="ghost">🎲 随机生成资料</button></div>
+        </div>
+      </section>
+
+      <section id="screen-game" class="screen">
+        <div class="main-grid">
+          <aside class="card stat-card">
+            <div class="section-title"><h3>📊 当前面板</h3><button id="quickSave" class="ghost">💾</button></div>
+            <div id="statBox"></div>
+            <div class="kpi" style="margin-top:14px">
+              <div class="mini"><span class="muted">日期</span><b id="kDay">1</b></div>
+              <div class="mini"><span class="muted">阶段</span><b id="kPhase">入住</b></div>
+              <div class="mini"><span class="muted">回合</span><b id="kTurn">0</b></div>
+              <div class="mini"><span class="muted">X</span><b id="kX">?</b></div>
+            </div>
+            <h3 style="margin-top:20px">🎭 男嘉宾心动值</h3>
+            <div id="castList" class="cast-list"></div>
+            <h3 style="margin-top:20px">🧾 最近记忆</h3>
+            <div id="historyList" class="history"></div>
+          </aside>
+          <section class="card story-card">
+            <div class="story-head">
+              <div><div class="chapter" id="chapterLabel">第1天 · 入住小屋</div><div class="story-title" id="storyTitle">等待开场</div></div>
+              <div class="loader" id="loader"><i class="spinner"></i> AI正在续写...</div>
+            </div>
+            <article class="story-body" id="storyBody"></article>
+            <div class="choice-box">
+              <h3>请选择你的行动 💫</h3>
+              <div id="choices" class="choices"></div>
+              <div class="field"><label for="freeInput">自由输入选项</label><textarea id="freeInput" placeholder="也可以直接写你想说的话或行动，例如：我把匿名信折好，转身去厨房找Suho确认时间线。"></textarea></div>
+              <div class="free-row"><div class="notice" id="turnHint">选项会推动剧情；自由输入会作为你的自定义行动交给AI。</div><button id="sendFree" class="mint">发送自由行动 🚀</button></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="screen-saves" class="screen">
+        <div class="card panel">
+          <div class="section-title"><div><h2>💾 存档功能</h2><p class="muted">支持6个本地槽位、导出JSON与导入恢复。</p></div><button class="ghost" data-nav="home">返回首页</button></div>
+          <div id="saveSlots" class="slots"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px">
+            <button id="exportSave" class="mint">⬇️ 导出当前进度</button>
+            <label class="btn ghost" for="importSave">⬆️ 导入进度</label><input id="importSave" type="file" accept=".json,application/json" style="display:none" />
+            <button id="deleteAllSaves" class="danger">🗑️ 清空全部存档</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="confirmModal" class="modal-mask"><div class="modal card"><h2 id="modalTitle">确认</h2><p id="modalText" class="lead"></p><div style="display:flex;gap:12px;flex-wrap:wrap"><button id="modalOk">确认</button><button id="modalCancel" class="ghost">取消</button></div></div></div>
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    const STORE_API = 'pinkTextGame.api.v1';
+    const STORE_GAME = 'pinkTextGame.current.v1';
+    const STORE_SLOTS = 'pinkTextGame.slots.v1';
+    const STORE_LORE = 'pinkTextGame.lore.v1';
+
+    const defaultLore = `【文游背景整理：根据“夸克.pdf”的可读信息重构】\n类型：EXO平行宇宙、恋爱综艺模拟、隐藏X推理、细腻酸甜、女主第一视角。所有角色均为虚构同人化设定，与现实人物无关。\n核心氛围：真实、暧昧、拒绝无脑爽文；强调旧关系与新心动之间的试探、吃醋、误会、照顾、沉默告白。\n节目规则：男女嘉宾共同入住小屋21天。每晚匿名发送心动短信，只能发给一位嘉宾；短信不直接公开身份。嘉宾不可私下交换联系方式，不可提前公开X身份。\n关键机制：心动值、X心动值、X情报值、观众缘、职业魅力、社交疲惫。每回合开头需要展示数值面板。\n节点：第1天入住小屋、自我介绍、第一封X来信、第一晚心动短信；第2天女选男约会；第3天X指定约会；第7天XRoom开放，可短暂进入X的房间寻找线索；第10天盲选礼物约会并确认隐藏女嘉宾；第13天男选女约会；第14天公开所有X身份，可给X发送视频留言或最后的短信；第21天与X深聊并进行最终选择：复合/放下/开放结局。\n男嘉宾基础：\n1. Xiumin / ISTJ：温柔稳重、细节控、责任感强，适合深夜厨房、便利店偶遇、默默解决麻烦。\n2. Suho / ENFJ：照顾型队长、克制温柔，适合天台夜谈、公司楼下等待、疲惫时递水。\n3. Lay / INFJ：音乐制作人气质、内敛而执着，适合录音室、练习室镜墙、为你写歌。\n4. Baekhyun / ENFP：明亮活泼、会哄人也会隐藏失落，适合直播后台、深夜消息、突然沉默的反差。\n5. Chen / ISFJ：温暖可靠、细水长流，适合做饭、旧相册、温柔长谈。\n6. Chanyeol / ESTP：直球热烈、行动派、占有欲强，适合篮球场、雨夜录音棚、吃醋场面。\n7. D.O. / ISTP：少言精准、用行动照顾，适合厨房、雨夜、用食物安慰。\n8. Kai / ISFP：舞台强烈私下像猫，敏感真诚，适合练习室镜墙、散步、笨拙告白。\n9. Sehun / ISTP：冷面慢热、别扭关心，适合便利店、阳台通话、故作无事的照顾。\n女嘉宾由AI动态生成，需包含年龄、职业、MBTI、性格、隐藏X线索。\n剧情要求：长段剧情，第二人称沉浸式；每次提供3-5个行动选项，并支持玩家自由输入。避免露骨成人内容、强迫、现实诽谤；保持精致、暧昧、推理与情绪张力。`;
+
+    const cast = [
+      {key:'Xiumin', cn:'秀珉', mbti:'ISTJ', emoji:'🍵'}, {key:'Suho', cn:'俊勉', mbti:'ENFJ', emoji:'🌙'},
+      {key:'Lay', cn:'艺兴', mbti:'INFJ', emoji:'🎧'}, {key:'Baekhyun', cn:'伯贤', mbti:'ENFP', emoji:'☀️'},
+      {key:'Chen', cn:'钟大', mbti:'ISFJ', emoji:'🍯'}, {key:'Chanyeol', cn:'灿烈', mbti:'ESTP', emoji:'🏀'},
+      {key:'D.O.', cn:'暻秀', mbti:'ISTP', emoji:'🍽️'}, {key:'Kai', cn:'钟仁', mbti:'ISFP', emoji:'🐈'},
+      {key:'Sehun', cn:'世勋', mbti:'ISTP', emoji:'🧊'}
+    ];
+    const phaseMap = {1:'入住',2:'女选男约会',3:'X指定约会',7:'XRoom',10:'礼物盲选',13:'男选女',14:'公开X',21:'最终选择'};
+
+    let api = loadJSON(STORE_API, {endpoint:'https://api.openai.com/v1/chat/completions', key:'', model:'gpt-4o-mini', temperature:.85, tested:false, testedAt:''});
+    let game = loadJSON(STORE_GAME, null);
+    let lore = localStorage.getItem(STORE_LORE) || defaultLore;
+    let currentConfirm = null;
+
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => [...document.querySelectorAll(sel)];
+
+    document.addEventListener('DOMContentLoaded', init);
+    function init(){
+      bindNav(); populateForms(); renderApiState(); renderCreateSelects(); renderSaves();
+      $('#homeStart').onclick = startFlow; $('#homeConfig').onclick = () => showScreen('config'); $('#homeLoad').onclick = () => showScreen('saves');
+      $('#saveApi').onclick = saveApiFromForm; $('#testApi').onclick = testApi; $('#clearApi').onclick = clearApiTest; $('#goCreate').onclick = startFlow;
+      $('#apiTemp').oninput = e => $('#tempLabel').textContent = e.target.value;
+      $('#loreFile').onchange = handleLoreFile; $('#loreText').onchange = () => {lore = $('#loreText').value; localStorage.setItem(STORE_LORE,lore);};
+      $('#beginGame').onclick = beginGame; $('#randomProfile').onclick = randomProfile;
+      $('#quickSave').onclick = () => quickSave(); $('#quickSaveTop').onclick = () => quickSave();
+      $('#sendFree').onclick = () => { const val=$('#freeInput').value.trim(); if(!val) return toast('请先写下你的自由行动 🌷'); advance({type:'free', label:val}); };
+      $('#exportSave').onclick = exportCurrent; $('#importSave').onchange = importSave; $('#deleteAllSaves').onclick = () => confirmBox('清空全部存档？','此操作不可撤销，但不会清空API配置。',()=>{localStorage.removeItem(STORE_SLOTS); renderSaves(); toast('已清空全部存档');});
+      $('#modalCancel').onclick = closeConfirm; $('#modalOk').onclick = () => { if(currentConfirm) currentConfirm(); closeConfirm(); };
+      if(game) renderGame();
+    }
+
+    function bindNav(){
+      $$('[data-nav]').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.nav)));
+    }
+    function showScreen(name){
+      $$('.screen').forEach(s=>s.classList.remove('active'));
+      $('#screen-'+name).classList.add('active');
+      if(name==='config') populateForms();
+      if(name==='saves') renderSaves();
+      if(name==='game') renderGame();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function populateForms(){
+      $('#apiEndpoint').value = api.endpoint || '';
+      $('#apiKey').value = api.key || '';
+      $('#apiModel').value = api.model || '';
+      $('#apiTemp').value = api.temperature ?? .85;
+      $('#tempLabel').textContent = $('#apiTemp').value;
+      $('#loreText').value = lore;
+    }
+    function renderCreateSelects(){
+      $('#playerX').innerHTML = cast.map(c=>`<option value="${c.key}">${c.emoji} ${c.cn}（${c.key} / ${c.mbti}）</option>`).join('');
+    }
+    function saveApiFromForm(){
+      api = {endpoint:$('#apiEndpoint').value.trim(), key:$('#apiKey').value.trim(), model:$('#apiModel').value.trim(), temperature:Number($('#apiTemp').value), tested:false, testedAt:''};
+      if(!api.endpoint || !api.model){toast('请填写API端点和模型名称'); return false;}
+      localStorage.setItem(STORE_API, JSON.stringify(api));
+      lore = $('#loreText').value.trim() || defaultLore; localStorage.setItem(STORE_LORE,lore);
+      renderApiState(); toast('API配置已保存，需重新测试连通 🧪'); return true;
+    }
+    function clearApiTest(){api.tested=false; api.testedAt=''; localStorage.setItem(STORE_API,JSON.stringify(api)); renderApiState(); toast('已清空测试状态');}
+    function renderApiState(){
+      const el=$('#apiState');
+      if(api.tested) el.innerHTML = `<b class="ok">✅ 已通过连通测试</b><br/>模型：${escapeHTML(api.model)}<br/>时间：${escapeHTML(api.testedAt || '')}`;
+      else el.innerHTML = `<b class="bad">⚠️ 尚未通过连通测试</b><br/>开始游戏前，请先保存配置并测试。`;
+    }
+    async function testApi(){
+      if(!saveApiFromForm()) return;
+      const btn=$('#testApi'); btn.disabled=true; btn.textContent='测试中...';
+      try{
+        const content = await callAI([{role:'system',content:'你是连通测试助手。'},{role:'user',content:'请只回复：连接成功'}], {maxTokens:30, temperature:0});
+        if(!content) throw new Error('接口无有效文本返回');
+        api.tested=true; api.testedAt=new Date().toLocaleString(); localStorage.setItem(STORE_API,JSON.stringify(api)); renderApiState(); toast('API连通成功 ✅');
+      }catch(err){ api.tested=false; localStorage.setItem(STORE_API,JSON.stringify(api)); renderApiState(); toast('连通失败：'+err.message); }
+      finally{btn.disabled=false; btn.textContent='🧪 测试连通';}
+    }
+    function startFlow(){
+      if(!api.tested){toast('请先完成API配置并通过连通测试 🔑'); showScreen('config'); return;}
+      showScreen('create');
+    }
+    function randomProfile(){
+      const names=['林夕','许愿','姜桃','温梨','周眠','宋知夏']; const jobs=['视觉设计师','电台编导','香氛品牌主理人','舞台摄影师','心理咨询师','音乐版权策划']; const mbtis=['INFJ','ENFP','INTJ','ISFJ','ISFP'];
+      $('#playerName').value = pick(names); $('#playerJob').value = pick(jobs); $('#playerMbti').value = pick(mbtis); $('#playerX').value = pick(cast).key;
+      $('#playerPref').value = '慢热但观察细致，喜欢克制的照顾和有来有回的推理；希望剧情粉白、酸甜、暧昧但不露骨。';
+    }
+    async function beginGame(){
+      if(!api.tested){toast('请先测试API连通'); showScreen('config'); return;}
+      const profile = {name:$('#playerName').value.trim() || '你', job:$('#playerJob').value.trim() || '自由职业者', mbti:$('#playerMbti').value, x:$('#playerX').value, route:$('#playerRoute').value, pref:$('#playerPref').value.trim()};
+      const affection={}; cast.forEach(c=>affection[c.key]=randomInt(8,24)); affection[profile.x]=randomInt(25,42);
+      game = {profile, day:1, turn:0, chapter:'第1天 · 入住小屋', phase:'入住', title:'粉色小屋的第一盏灯', narrative:'', options:[], stats:{affection, xHeart:randomInt(18,35), xIntel:0, social:50, career:55, publicOpinion:45, fatigue:12}, flags:{revealedX:false}, history:[], createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()};
+      localStorage.setItem(STORE_GAME, JSON.stringify(game)); showScreen('game');
+      await generateScene('开场：玩家抵达心动X小屋，进行自我介绍，并收到第一封X来信。');
+    }
+
+    async function advance(action){
+      if(!game) return;
+      setLoading(true); disableChoices(true);
+      game.history.unshift({time:new Date().toLocaleString(), action:action.label, title:game.title, day:game.day});
+      game.history = game.history.slice(0,18);
+      game.turn += 1;
+      if(game.turn>0 && game.turn % 3 === 0) game.day = Math.min(21, game.day + 1);
+      game.phase = phaseMap[game.day] || (game.day<7?'共同生活':game.day<14?'约会与线索':'公开后的选择');
+      game.chapter = `第${game.day}天 · ${game.phase}`;
+      $('#freeInput').value='';
+      await generateScene(action.type==='free' ? `玩家自由行动：${action.label}` : `玩家选择：${action.label}`);
+    }
+
+    async function generateScene(playerAction){
+      setLoading(true);
+      try{
+        const messages = buildMessages(playerAction);
+        const text = await callAI(messages, {maxTokens:1800, temperature:api.temperature ?? .85});
+        const data = parseAIJson(text);
+        applyScene(data);
+        toast('剧情已更新 ✨');
+      }catch(err){
+        console.error(err);
+        const fallback = localScene(playerAction, err.message);
+        applyScene(fallback);
+        toast('AI生成失败，已启用本地备用续写：'+err.message);
+      }finally{setLoading(false); disableChoices(false); saveCurrent(); renderGame();}
+    }
+    function buildMessages(playerAction){
+      const statLine = JSON.stringify(game.stats);
+      const castLine = cast.map(c=>`${c.key}(${c.cn}/${c.mbti})`).join('、');
+      const recent = game.history.slice(0,8).map(h=>`第${h.day}天：${h.action}`).join('\n');
+      const system = `你是一个精致的中文互动文字游戏DM，负责生成粉白色恋综风格的AI文游剧情。必须严格输出JSON，不要Markdown，不要代码块。保持虚构同人设定，不要声称现实事实。避免露骨成人内容、强迫、诽谤和危险内容。`;
+      const user = `背景资料：\n${lore}\n\n可用男嘉宾：${castLine}\n玩家档案：${JSON.stringify(game.profile)}\n当前状态：day=${game.day}, turn=${game.turn}, chapter=${game.chapter}, phase=${game.phase}, stats=${statLine}\n最近记忆：\n${recent || '暂无'}\n本回合玩家行动：${playerAction}\n\n请生成下一幕。要求：\n1. narrative为900-1500字中文长段剧情，第二人称“你”，粉白、暧昧、细腻、有画面感，兼顾隐藏X线索与恋综规则。\n2. 开头自然体现当前数值面板中的关键信息，但不要写成表格。\n3. options必须给3-5个可点击选项，每个有label、tone、preview。\n4. statChanges使用数字，范围-8到+10，可小幅调整；affection只包含需要变化的男嘉宾key。\n5. 如果到关键日期，请推进对应事件。第14天前不要直接公开所有X身份。\n输出JSON格式：{"title":"标题","narrative":"剧情正文","options":[{"label":"选项文本","tone":"语气","preview":"可能影响"}],"statChanges":{"affection":{"Suho":2},"xHeart":1,"xIntel":3,"social":0,"career":0,"publicOpinion":1,"fatigue":2},"memory":"一句本幕记忆","special":"可选特殊事件"}`;
+      return [{role:'system',content:system},{role:'user',content:user}];
+    }
+    function applyScene(data){
+      game.title = String(data.title || '新的心动片段');
+      game.narrative = String(data.narrative || data.story || '粉色灯光落在小屋窗边，新的选择正在靠近。');
+      game.options = Array.isArray(data.options) ? data.options.slice(0,5).filter(o=>o && o.label).map(o=>({label:String(o.label), tone:String(o.tone||''), preview:String(o.preview||'')})) : [];
+      if(game.options.length<3){
+        game.options = game.options.concat([
+          {label:'靠近厨房，主动帮忙准备晚餐',tone:'温柔主动',preview:'可能提升观众缘与某位嘉宾心动值'},
+          {label:'去阳台独处，整理X来信里的线索',tone:'冷静推理',preview:'可能提升X情报值'},
+          {label:'留在客厅观察大家的互动',tone:'谨慎观察',preview:'可能发现隐藏关系'}
+        ]).slice(0,4);
+      }
+      applyStats(data.statChanges || {});
+      if(data.memory) game.history.unshift({time:new Date().toLocaleString(), action:'记忆：'+String(data.memory), title:game.title, day:game.day});
+      game.history = game.history.slice(0,18);
+      game.updatedAt = new Date().toISOString();
+    }
+    function applyStats(ch){
+      if(ch.affection && typeof ch.affection==='object'){
+        Object.entries(ch.affection).forEach(([k,v])=>{ if(game.stats.affection[k]!==undefined) game.stats.affection[k]=clamp(game.stats.affection[k]+Number(v||0),0,100); });
+      }
+      ['xHeart','xIntel','social','career','publicOpinion','fatigue'].forEach(k=>{ if(ch[k]!==undefined) game.stats[k]=clamp(game.stats[k]+Number(ch[k]||0),0,100); });
+    }
+    function localScene(action, reason){
+      const focus = pick(cast); const opt = [
+        {label:`向${focus.cn}确认刚才那句玩笑的真正含义`, tone:'试探', preview:'也许会得到一条X线索'},
+        {label:'把注意力放回节目任务，展示你的职业能力', tone:'清醒', preview:'提升职业魅力与观众缘'},
+        {label:'给自己的X写一条克制的心动短信', tone:'旧情拉扯', preview:'提升X心动值但可能增加疲惫'},
+        {label:'邀请大家玩一个只回答“是/否”的小游戏', tone:'社交破冰', preview:'可能发现多人关系暗线'}
+      ];
+      return {title:'备用续写：粉色灯下的停顿', narrative:`当前AI接口暂时没有返回可解析的剧情，但小屋的故事仍在继续。${action}之后，客厅陷入一瞬轻而柔的安静。玻璃杯里的粉色气泡水慢慢上浮，像有人没有说出口的心事。你能感觉到自己的社交疲惫微微上升，可观众缘也因为这份真实而变得鲜活。${focus.cn}站在暖光边缘，目光落在你手里的信纸上，又很快移开，仿佛那封来自X的旧信牵动了某段不愿被摄像机捕捉的回忆。节目组提示今晚仍要发送心动短信，而第${game.day}天的规则正一点点推近：你必须在新心动和旧关系之间，选一个方向先迈出去。\n\n（备用原因：${reason}）`, options:opt, statChanges:{affection:{[focus.key]:2}, xHeart:1, xIntel:1, social:0, career:0, publicOpinion:1, fatigue:2}, memory:`备用回合中，${focus.cn}注意到你的X来信。`};
+    }
+
+    function renderGame(){
+      if(!game){ $('#storyBody').innerHTML='<p>还没有开始游戏。</p>'; return; }
+      $('#chapterLabel').textContent = game.chapter; $('#storyTitle').textContent = game.title || '等待开场'; $('#storyBody').innerHTML = paragraphs(game.narrative || '正在等待AI生成第一幕...');
+      $('#kDay').textContent = game.day; $('#kPhase').textContent = game.phase; $('#kTurn').textContent = game.turn; $('#kX').textContent = game.flags?.revealedX ? game.profile.x : '??';
+      $('#statBox').innerHTML = [
+        ['X心动值',game.stats.xHeart,'💗'],['X情报值',game.stats.xIntel,'🕵️'],['观众缘',game.stats.publicOpinion,'📺'],['职业魅力',game.stats.career,'💼'],['社交能量',game.stats.social,'🌈'],['疲惫值',game.stats.fatigue,'🌧️']
+      ].map(([n,v,e])=>statHTML(n,v,e)).join('');
+      $('#castList').innerHTML = cast.map(c=>`<div class="cast-item"><span><b>${c.emoji} ${c.cn}</b><br><span class="muted">${c.key} · ${c.mbti}</span></span><span class="tag">${game.stats.affection[c.key]||0}</span></div>`).join('');
+      $('#historyList').innerHTML = (game.history||[]).slice(0,8).map(h=>`<div class="history-item"><b>第${h.day}天</b> ${escapeHTML(h.action)}<br><span class="muted">${escapeHTML(h.time||'')}</span></div>`).join('') || '<div class="history-item">暂无记忆。</div>';
+      $('#choices').innerHTML = (game.options||[]).map((o,i)=>`<button class="choice" data-choice="${i}"><span class="num">${i+1}</span><span>${escapeHTML(o.label)}<small>${escapeHTML(o.tone||'')} ${o.preview?' · '+escapeHTML(o.preview):''}</small></span></button>`).join('');
+      $$('.choice').forEach(btn=>btn.onclick=()=>advance({type:'choice', label:game.options[Number(btn.dataset.choice)].label}));
+    }
+    function statHTML(name,val,emoji){return `<div class="stat"><div class="stat-top"><span>${emoji} ${name}</span><span>${val}/100</span></div><div class="bar"><i style="width:${clamp(val,0,100)}%"></i></div></div>`;}
+
+    function renderSaves(){
+      const slots = loadJSON(STORE_SLOTS, {}); const box=$('#saveSlots'); if(!box) return;
+      box.innerHTML = Array.from({length:6},(_,i)=>{ const id='slot'+(i+1), s=slots[id];
+        if(!s) return `<div class="slot empty"><div><div class="slot-title">槽位 ${i+1}</div><p class="muted">空存档</p></div><div class="slot-actions"><button data-save-slot="${id}">保存当前</button></div></div>`;
+        return `<div class="slot"><div><div class="slot-title">槽位 ${i+1} · ${escapeHTML(s.title||'未命名')}</div><p class="muted">第${s.day}天 / ${escapeHTML(s.phase||'')}</p><p class="hint">${escapeHTML(s.savedAt||'')}</p></div><div class="slot-actions"><button data-load-slot="${id}" class="mint">读取</button><button data-save-slot="${id}">覆盖</button><button data-del-slot="${id}" class="danger">删除</button></div></div>`;
+      }).join('');
+      $$('[data-save-slot]').forEach(b=>b.onclick=()=>saveSlot(b.dataset.saveSlot));
+      $$('[data-load-slot]').forEach(b=>b.onclick=()=>loadSlot(b.dataset.loadSlot));
+      $$('[data-del-slot]').forEach(b=>b.onclick=()=>deleteSlot(b.dataset.delSlot));
+    }
+    function saveCurrent(){ if(game) localStorage.setItem(STORE_GAME, JSON.stringify(game)); }
+    function quickSave(){ if(!game){toast('当前没有可保存的游戏'); return;} saveSlot('slot1', true); }
+    function saveSlot(id, silent=false){ if(!game){toast('当前没有可保存的游戏'); return;} const slots=loadJSON(STORE_SLOTS,{}); slots[id]={...structuredClone(game), savedAt:new Date().toLocaleString(), title:game.title, day:game.day, phase:game.phase}; localStorage.setItem(STORE_SLOTS,JSON.stringify(slots)); renderSaves(); if(!silent) toast('已保存到'+id); else toast('已快速存档到槽位1 💾'); }
+    function loadSlot(id){ const s=loadJSON(STORE_SLOTS,{})[id]; if(!s){toast('槽位为空'); return;} game=s; saveCurrent(); toast('读档成功'); showScreen('game'); }
+    function deleteSlot(id){ confirmBox('删除该槽位？','删除后不可恢复。',()=>{ const slots=loadJSON(STORE_SLOTS,{}); delete slots[id]; localStorage.setItem(STORE_SLOTS,JSON.stringify(slots)); renderSaves(); toast('已删除'); }); }
+    function exportCurrent(){ if(!game){toast('没有当前进度可导出'); return;} const blob=new Blob([JSON.stringify({game,lore,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`心动X小屋-存档-第${game.day}天.json`; a.click(); URL.revokeObjectURL(a.href); }
+    async function importSave(e){ const f=e.target.files[0]; if(!f) return; try{ const obj=JSON.parse(await f.text()); game=obj.game || obj; if(obj.lore){lore=obj.lore; localStorage.setItem(STORE_LORE,lore);} saveCurrent(); toast('导入成功'); showScreen('game'); }catch(err){toast('导入失败：'+err.message);} e.target.value=''; }
+
+    async function callAI(messages, opts={}){
+      const endpoint = normalizeEndpoint(api.endpoint);
+      const headers = {'Content-Type':'application/json'}; if(api.key) headers.Authorization = 'Bearer '+api.key;
+      let body;
+      if(/\/responses\/?$/.test(endpoint)){
+        body = {model:api.model, input:messages.map(m=>`${m.role}: ${m.content}`).join('\n\n'), temperature:opts.temperature ?? api.temperature ?? .85, max_output_tokens:opts.maxTokens || 1200};
+      }else{
+        body = {model:api.model, messages, temperature:opts.temperature ?? api.temperature ?? .85, max_tokens:opts.maxTokens || 1200};
+      }
+      const res = await fetch(endpoint,{method:'POST',headers,body:JSON.stringify(body)});
+      const text = await res.text(); let data; try{data=JSON.parse(text)}catch{data=null}
+      if(!res.ok) throw new Error((data?.error?.message || data?.message || text || res.statusText).slice(0,300));
+      if(/\/responses\/?$/.test(endpoint)) return data.output_text || (data.output||[]).flatMap(o=>(o.content||[]).map(c=>c.text||c.value||'')).join('\n');
+      return data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || '';
+    }
+    function normalizeEndpoint(e){ const clean=(e||'').trim().replace(/\/+$/,''); if(!clean) return ''; if(/\/(chat\/completions|responses)$/.test(clean)) return clean; if(/\/v\d+$/.test(clean)) return clean + '/chat/completions'; return clean + '/v1/chat/completions'; }
+    function parseAIJson(text){
+      if(!text) throw new Error('AI返回为空');
+      let s=text.trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```$/,'').trim();
+      const start=s.indexOf('{'), end=s.lastIndexOf('}'); if(start>=0 && end>start) s=s.slice(start,end+1);
+      try{return JSON.parse(s);}catch(err){throw new Error('AI返回不是有效JSON：'+text.slice(0,160));}
+    }
+    async function handleLoreFile(e){
+      const f=e.target.files[0]; if(!f) return;
+      try{
+        let text='';
+        if(f.type==='application/pdf' || f.name.toLowerCase().endsWith('.pdf')){
+          if(!window.pdfjsLib) throw new Error('PDF.js未加载，无法在浏览器解析PDF。请改传txt/md。');
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+          for(let i=1;i<=pdf.numPages;i++){ const page=await pdf.getPage(i); const content=await page.getTextContent(); text += content.items.map(it=>it.str).join(' ')+'\n'; }
+        }else text = await f.text();
+        lore = ($('#loreText').value.trim() + '\n\n【用户上传背景：'+f.name+'】\n' + text).trim();
+        $('#loreText').value = lore; localStorage.setItem(STORE_LORE,lore); toast('背景文件已追加到提示词资料库 📎');
+      }catch(err){toast('读取背景文件失败：'+err.message);} finally{e.target.value='';}
+    }
+
+    function setLoading(v){$('#loader').classList.toggle('active',!!v);}
+    function disableChoices(v){$$('.choice').forEach(b=>b.disabled=v); $('#sendFree').disabled=v;}
+    function paragraphs(t){return String(t||'').split(/\n+/).filter(Boolean).map(p=>`<p>${escapeHTML(p)}</p>`).join('');}
+    function toast(msg){const box=$('#toast'); const el=document.createElement('div'); el.textContent=msg; box.appendChild(el); setTimeout(()=>{el.style.opacity='0'; el.style.transform='translateY(8px)';},3200); setTimeout(()=>el.remove(),3800);}
+    function confirmBox(title,text,ok){$('#modalTitle').textContent=title; $('#modalText').textContent=text; currentConfirm=ok; $('#confirmModal').classList.add('active');}
+    function closeConfirm(){currentConfirm=null; $('#confirmModal').classList.remove('active');}
+    function loadJSON(k,d){try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}}
+    function clamp(n,a,b){return Math.max(a,Math.min(b,Math.round(Number(n)||0)))}
+    function randomInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+    function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+    function escapeHTML(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  </script>
+</body>
+</html>
